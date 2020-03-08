@@ -1,0 +1,25 @@
+{
+  "name": "wshopApi",
+  "version": "1.0.0",
+  "description": "wshop的Api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3Alan/wshopApi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/3Alan/wshopApi/issues"
+  },
+  "homepage": "https://github.com/3Alan/wshopApi#readme",
+  "dependencies": {
+    "koa": "^2.11.0",
+    "koa-router": "^8.0.8",
+    "mysql": "^2.18.1"
+  }
+}
