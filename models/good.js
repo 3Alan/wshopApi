@@ -6,5 +6,9 @@ module.exports = {
     let goodDetail = await db.q('select good.name,good.price,good.type,good_image.image,good_image.type from good, good_image where good.goodId=good_image.goodId and good.goodId=?', [goodId]);
     const goodImgs = goodDetail.map(({ image }) => image);
     return {name: goodDetail[0].name, price: goodDetail[0].price, goodImgs,};
+  },
+  async findGoodList(type) {
+    let goodList = await db.q('select * from good where type=?', [type]);
+    return goodList;
   }
 }
