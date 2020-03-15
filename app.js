@@ -17,7 +17,7 @@ app.listen(appPort, ()=> {
 
 app.use(error);
 
-app.use(koaJwt({secret,}).unless({
+app.use(koaJwt({secret}).unless({
   path: [
     /\/user\/login/,
     /^((?!\/user).)*$/,

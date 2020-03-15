@@ -11,10 +11,11 @@ function verify(...args) {
 }
 
 module.exports = async (ctx, next) => {
-  const token = getToken(ctx);
-  if (token) {
-    const user = await verify(token, secret); // 把token解析回之前的数据
-    ctx.state.user = user; // 将获取的用户信息保存到全局的state中
-  }
+    const token = getToken(ctx);
+    if (token) {
+      const user = await verify(token, secret); // 把token解析回之前的数据
+      ctx.state.user = user; // 将获取的用户信息保存到全局的state中
+    }
+
   await next();
 };

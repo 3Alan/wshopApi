@@ -4,7 +4,6 @@ module.exports = {
   async getGoodDetail (ctx, next) {
     const { goodId } = ctx.query;
     let goodDetail = await goodModel.findGoodDetail(goodId);
-    console.log(ctx.state.user);
     ctx.body = { goodDetail };
   },
 

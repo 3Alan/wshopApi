@@ -2,10 +2,13 @@ const db = require('./db');
 
 module.exports = {
   async findGoodDetail(goodId) {
-    // let goodDetail = await db.q('select * from good where goodId=?', [goodId]);
-    let goodDetail = await db.q('select good.name,good.price,good.type,good_image.image,good_image.type from good, good_image where good.goodId=good_image.goodId and good.goodId=?', [goodId]);
-    const goodImgs = goodDetail.map(({ image }) => image);
-    return {name: goodDetail[0].name, price: goodDetail[0].price, goodImgs,};
+    const baseInfo = await db.q('select * from good g where g.goodId=?', [goodId]);
+    let goodImgList = await db.q('select i.image from good g inner join good_image i on g.goodId=i.goodId and g.goodId=?', [goodId]);
+    let goodSizeList = await db.q('select s.size from good g INNER JOIN good_size s on g.goodId=s.goodId and g.goodId=?', [goodId]);
+    goodImgList = goodImgList.map(({ image }) => image);
+    goodSizeList = goodSizeList.map(({ size }) => size);
+
+    return {...baseInfo[0], goodImgList, goodSizeList};
   },
   async findGoodList(type) {
     let goodList = await db.q('select * from good where type=?', [type]);

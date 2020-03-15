@@ -6,11 +6,12 @@ module.exports=async (ctx, next) => {
     console.log('错误中间件');
     
     console.log(error);
-    if (error.status === 401) {
+    if (error.status === 401 || error.name === 'TokenExpiredError') {
       ctx.body = {
         code: '00004',
         msg: 'authenticate failed!'
       };
+      ctx.status = 401;
     } else {
       throw error;
     }
