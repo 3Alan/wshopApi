@@ -45,5 +45,23 @@ module.exports = {
   async payForOrder(username, orderId, orderPrice) {
      await db.q('update user set balance=balance-? where username=?',[orderPrice, username]);
      await db.q('update orders set status=2 where orderId=?',[orderId]);
+  },
+  async delivery(orderId) {
+     await db.q('update orders set status=3 where orderId=?',[orderId]);
+  },
+  async confirmReceiving(orderId) {
+     await db.q('update orders set status=4 where orderId=?',[orderId]);
+  },
+  async getOrderList(username, status) {
+     return await db.q('select orderId, name, size, price, main_img from orders o inner join good g on o.goodId=g.goodId and username=? and status=?',[username, status]);
+  },
+  async getOrderAddress(orderId) {
+     return await db.q('select receiver, tel, address from address a inner join orders o on o.addressId=a.id and o.orderId=?',[orderId]);
+  },
+  async getOrderGood(orderId) {
+     return await db.q('select main_img, name, price from good g inner join orders o on o.goodId=g.goodId and o.orderId=?',[orderId]);
+  },
+  async orderEvaluate(orderId, comment, commentType) {
+     await db.q('update orders set status=5, comment=?, comment_type=? where orderId=?',[comment,commentType,orderId]);
   }
 }

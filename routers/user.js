@@ -13,5 +13,10 @@ userRouter.get('/user/set_default_address', userController.setDefaultAddress);
 userRouter.post('/user/submit_order', userController.submitOrder);
 userRouter.get('/user/check_user_account', userController.checkUserAccount);
 userRouter.post('/user/pay_for_order', userController.payForOrder);
+userRouter.post('/user/get_order_list', userController.getOrderList);
+userRouter.get('/user/get_order_detail', userController.getOrderDetail);
+userRouter.post('/user/delivery', userController.delivery);
+userRouter.post('/user/confirm_receiving', userController.confirmReceiving);
+userRouter.post('/user/order_evaluate', userController.orderEvaluate);
 
 module.exports = userRouter;

@@ -117,7 +117,7 @@ module.exports = {
     await userModel.submitOrder(username, orderId, addressId, goodId, size, submitTime);
     const orderDetail = await userModel.getOrderDetail(orderId);
     ctx.body = {
-      orderDetail,
+      orderDetail: orderDetail[0],
       res: 'success',
       msg: '提交订单成功',
       status: 1,
@@ -127,8 +127,6 @@ module.exports = {
   async checkUserAccount(ctx, next) {
     const { username } = ctx.state.user;
     const balance = await userModel.checkUserAccount(username);
-    console.log(balance);
-    
     ctx.body = balance[0];
   },
 
@@ -139,6 +137,49 @@ module.exports = {
     ctx.body = {
       msg: '支付成功！',
       orderStatus: 2,
+    };
+  },
+
+  async delivery(ctx, next) {
+    const { orderId } = ctx.request.body;
+    await userModel.delivery(orderId);
+    ctx.body = {
+      orderStatus: 3,
+    };
+  },
+
+  async confirmReceiving(ctx, next) {
+    const { orderId } = ctx.request.body;
+    await userModel.confirmReceiving(orderId);
+    ctx.body = {
+      orderStatus: 4,
+    };
+  },
+
+  async getOrderList(ctx, next) {
+    const { username } = ctx.state.user;
+    const { status } = ctx.request.body;
+    const orderList = await userModel.getOrderList(username, status);
+    ctx.body = { orderList };
+  },
+
+  async getOrderDetail(ctx, next) {
+    const { orderId } = ctx.request.query;
+    const addressDetail = await userModel.getOrderAddress(orderId);
+    const goodDetail = await userModel.getOrderGood(orderId);
+    const orderDetail = await userModel.getOrderDetail(orderId);
+    ctx.body = { 
+      addressDetail: addressDetail[0],
+      goodDetail: goodDetail[0],
+      orderDetail: orderDetail[0],
+    };
+  },
+
+  async orderEvaluate(ctx, next) {
+    const { orderId, comment, commentType } = ctx.request.body;
+    await userModel.orderEvaluate(orderId, comment, commentType);
+    ctx.body = {
+      msg: '评价成功'
     };
   }
 };
