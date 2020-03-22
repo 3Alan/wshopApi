@@ -49,11 +49,18 @@ module.exports = {
   async delivery(orderId) {
      await db.q('update orders set status=3 where orderId=?',[orderId]);
   },
+  async cancelOrder(orderId) {
+     await db.q('update orders set status=6 where orderId=?',[orderId]);
+  },
   async confirmReceiving(orderId) {
      await db.q('update orders set status=4 where orderId=?',[orderId]);
   },
   async getOrderList(username, status) {
+     if (status === 5 ) {
+      return await db.q('select orderId, name, size, price, main_img from orders o inner join good g on o.goodId=g.goodId and username=? and status in (5,6)',[username]);
+     }
      return await db.q('select orderId, name, size, price, main_img from orders o inner join good g on o.goodId=g.goodId and username=? and status=?',[username, status]);
+     
   },
   async getOrderAddress(orderId) {
      return await db.q('select receiver, tel, address from address a inner join orders o on o.addressId=a.id and o.orderId=?',[orderId]);
@@ -63,5 +70,32 @@ module.exports = {
   },
   async orderEvaluate(orderId, comment, commentType) {
      await db.q('update orders set status=5, comment=?, comment_type=? where orderId=?',[comment,commentType,orderId]);
+  },
+  async findUserCollection(username, goodId) {
+     return await db.q('select * from collection where username=? and goodId=?',[username,goodId]);
+  },
+  async addCollect(username, goodId) {
+     return await db.q('insert into collection(username,goodId,status) value(?,?,?)',[username,goodId, 1]);
+  },
+  async toggleCollect(username, goodId) {
+     return await db.q('update collection set status=-status where username=? and goodId=?',[username,goodId]);
+  },
+  async getCollectionList(username) {
+     return await db.q('select g.name,g.price,g.main_img,c.id,c.goodId from good g,collection c where g.goodId=c.goodId and c.status=1 and c.username=?',[username]);
+  },
+  async cancelCollect(id) {
+     await db.q('update collection set status=-1 where id=?',[id]);
+  },
+  async getHistory(username) {
+     return await db.q('select * from history_search where username=?',[username]);
+  },
+  async findHistory(username,searchValue) {
+     return await db.q('select * from history_search where username=? and content=?',[username,searchValue]);
+  },
+  async saveHistorySearch(username,searchValue) {
+     return await db.q('insert into history_search(username,content) values(?,?)',[username,searchValue]);
+  },
+  async deleteHistory(username) {
+     return await db.q('delete from history_search where username=?',[username]);
   }
 }

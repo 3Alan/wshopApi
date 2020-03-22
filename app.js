@@ -17,10 +17,12 @@ app.listen(appPort, ()=> {
 
 app.use(error);
 
-app.use(koaJwt({secret}).unless({
+// secret 为不能向外透露的密钥，并且设置一下路径不需要使用jwt验证
+app.use(koaJwt({ secret }).unless({
   path: [
     /\/user\/login/,
     /^((?!\/user).)*$/,
+    /\/user\/.*_history/,
   ]
 }));
 

@@ -9,7 +9,8 @@ module.exports=async (ctx, next) => {
     if (error.status === 401 || error.name === 'TokenExpiredError') {
       ctx.body = {
         code: '00004',
-        msg: 'authenticate failed!'
+        msg: 'authenticate failed!',
+        error,
       };
       ctx.status = 401;
     } else {

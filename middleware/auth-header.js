@@ -10,7 +10,7 @@ module.exports = function resolveAuthorizationHeader(ctx, opts) {
       return credentials;
     }
   }
-  // if (opts.passthrough) {
-    ctx.throw(401, 'Bad Authorization header format. Format is "Authorization: Bearer <token>"');
+  // if (!opts.passthrough) {
+  //   ctx.throw(401, 'Bad Authorization header format. Format is "Authorization: Bearer <token>"');
   // }
 }
