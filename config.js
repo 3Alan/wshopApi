@@ -7,5 +7,6 @@ module.exports = {
     user: "root",
     password: "wp.666",
     database: "wshop"
-  }
+  },
+  secret: '7e2c71a51284ef29da506282d7311996',
 }

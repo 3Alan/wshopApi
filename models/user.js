@@ -6,11 +6,14 @@ module.exports = {
     return userExist.length === 0 ? false : true;
   },
   async register(username, password) {
-     return await db.q('insert into user(username, password) values(?,?)', [username, password]);
+     return await db.q('insert into user(username, password, balance) values(?,?,0)', [username, password]);
   },
   async checkUser(username, password) {
      const userValidate = await db.q('select * from user where username=? and password=?', [username, password]);
      return userValidate.length === 0 ? false : true;
+  },
+  async recharge(username, price) {
+     await db.q('update user set balance=balance+? where username=?', [price, username]);
   },
   async addAddress(username, address) {
      await db.q('update address set is_default=0 where username=?', [username]);

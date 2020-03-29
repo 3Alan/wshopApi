@@ -14,7 +14,11 @@ module.exports=async (ctx, next) => {
       };
       ctx.status = 401;
     } else {
-      throw error;
+      ctx.body = {
+        code: '500',
+        msg: '不要意思，服务器开小差了，请稍后再试！',
+        error,
+      }
     }
   }
 };

@@ -5,7 +5,7 @@ const moment = require("moment");
 const goodModel = require('../models/good');
 
 const appid = "wxe2f51632adeb6a99";
-const secret = "7e2c71a51284ef29da506282d7311996";
+const { secret } = require('../config');
 
 const createUUID = username => {
   const user = username.split("");
@@ -42,12 +42,6 @@ module.exports = {
 
   async login(ctx, next) {
     const { username, password } = ctx.request.body;
-    const userExit = await userModel.findUser(username);
-
-    if (!userExit) {
-      // 注册
-      await userModel.register(username, password);
-    }
     const userValidate = await userModel.checkUser(username, password);
 
     //验证用户名以及密码
@@ -70,6 +64,22 @@ module.exports = {
     // 返回token
   },
 
+  async register(ctx, next) {
+    const { username, password } = ctx.request.body;
+    const userExit = await userModel.findUser(username);
+
+    if (!userExit) {
+      await userModel.register(username, password);
+      ctx.body = {
+        msg: '注册成功！'
+      }
+    } else {
+      ctx.body = {
+        msg: '用户名已经被注册了'
+      }
+    }
+  },
+
   async addAddress(ctx, next) {
     const addressInfo = ctx.request.body;
     const { username } = ctx.state.user;
@@ -86,6 +96,12 @@ module.exports = {
     const { username } = ctx.state.user;
     const addressList = await userModel.getAddressList(username);
     ctx.body = { addressList };
+  },
+
+  async checkUserName(ctx, next) {
+    const { username } = ctx.request.body;
+    const userExit = await userModel.findUser(username);
+    ctx.body = { userExit };
   },
 
   async deleteAddress(ctx, next) {
@@ -247,6 +263,29 @@ module.exports = {
     ctx.body = {
       msg: 'success'
     };
+  },
+
+  async recharge(ctx, next) {
+    const { username } = ctx.state.user || '';
+    const { price, password } = ctx.request.body;
+    console.log(price);
+    console.log(password);
+    
+    const userValidate = await userModel.checkUser(username, password);
+    console.log(userValidate);
+    
+    if (userValidate) {
+      await userModel.recharge(username, price);
+      ctx.body = {
+        code: 1,
+        msg: '充值成功！'
+      };
+    } else {
+      ctx.body = {
+        code: -1,
+        msg: '密码错误！'
+      };
+    }
   },
 
   async saveHistorySearch(ctx, next) {

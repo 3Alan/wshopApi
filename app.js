@@ -6,8 +6,7 @@ const bodyParser = require('koa-bodyparser');
 const error = require('./middleware/error');
 const koaJwt = require('koa-jwt');
 const verify = require('./middleware/verify');
-
-const secret = '7e2c71a51284ef29da506282d7311996';
+const { secret } = require('./config')
 
 let app = new Koa();
 
@@ -21,6 +20,8 @@ app.use(error);
 app.use(koaJwt({ secret }).unless({
   path: [
     /\/user\/login/,
+    /\/user\/register/,
+    /\/user\/check_user_name/,
     /^((?!\/user).)*$/,
     /\/user\/.*_history/,
   ]

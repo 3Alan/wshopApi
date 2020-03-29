@@ -5,6 +5,7 @@ let userRouter = new Router();
 
 userRouter.post('/user/wechatLogin', userController.wechatLogin);
 userRouter.post('/user/login', userController.login);
+userRouter.post('/user/register', userController.register);
 userRouter.post('/user/add_address', userController.addAddress);
 userRouter.post('/user/delivery', userController.delivery);
 userRouter.post('/user/cancel_order', userController.cancelOrder);
@@ -17,6 +18,8 @@ userRouter.post('/user/get_order_list', userController.getOrderList);
 userRouter.post('/user/cancel_collect', userController.cancelCollect);
 userRouter.post('/user/save_history_search', userController.saveHistorySearch);
 userRouter.post('/user/delete_history', userController.deleteHistory);
+userRouter.post('/user/recharge', userController.recharge);
+userRouter.post('/user/check_user_name', userController.checkUserName);
 
 userRouter.get('/user/get_address_list', userController.getAddressList);
 userRouter.get('/user/delete_address', userController.deleteAddress);

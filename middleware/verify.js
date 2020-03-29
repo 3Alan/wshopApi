@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 // 用来获取客户端发送请求中的token
 const getToken = require("./auth-header");
-const secret = "7e2c71a51284ef29da506282d7311996";
+const { secret } = require('../config');
 
 // 用来验证token是否有效
 function verify(...args) {
