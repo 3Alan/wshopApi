@@ -1,6 +1,7 @@
 # wshopApi
 **wshop的Api**
 ***
+```
 wshopApi
  ├── app.js
  ├── config.js
@@ -21,6 +22,7 @@ wshopApi
  └── routers
      ├── good.js
      └── user.js
+```
 
 **运行方式：**
 ***
