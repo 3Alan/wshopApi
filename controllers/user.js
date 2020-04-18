@@ -2,12 +2,12 @@ const request = require("request");
 const userModel = require("../models/user");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
-const goodModel = require('../models/good');
+const goodModel = require("../models/good");
 
 const appid = "wxe2f51632adeb6a99";
-const { secret } = require('../config');
+const { secret } = require("../config");
 
-const createUUID = username => {
+const createUUID = (username) => {
   const user = username.split("");
   const uuid = [];
   for (let i = 0; i < 5; i++) {
@@ -18,9 +18,23 @@ const createUUID = username => {
   return uuid.join("");
 };
 
+const updateAccessToken = () => {
+  return new Promise((resolve, reject) => {
+    request(
+      `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`,
+      (err, res, body) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(body);
+        }
+      }
+    );
+  });
+};
+
 module.exports = {
   wechatLogin: async (ctx, next) => {
-    console.log(ctx);
     const { code } = ctx.request.body;
 
     const result = await new Promise((resolve, reject) => {
@@ -35,8 +49,10 @@ module.exports = {
         }
       );
     });
+    const accessResult = await updateAccessToken();
     ctx.body = {
-      openid: JSON.parse(result).openid
+      openid: JSON.parse(result).openid,
+      access_token: JSON.parse(accessResult).access_token,
     };
   },
 
@@ -47,18 +63,18 @@ module.exports = {
     //验证用户名以及密码
     if (userValidate) {
       const token = jwt.sign({ username, password }, secret, {
-        expiresIn: "12h"
+        expiresIn: "12h",
       });
       ctx.body = {
         msg: "登录成功！",
         code: "00001",
-        token
+        token,
       };
     } else {
       ctx.body = {
         msg: "登录失败，请检查用户名及密码是否正确！",
         code: "00002",
-        token: null
+        token: null,
       };
     }
     // 返回token
@@ -71,12 +87,12 @@ module.exports = {
     if (!userExit) {
       await userModel.register(username, password);
       ctx.body = {
-        msg: '注册成功！'
-      }
+        msg: "注册成功！",
+      };
     } else {
       ctx.body = {
-        msg: '用户名已经被注册了'
-      }
+        msg: "用户名已经被注册了",
+      };
     }
   },
 
@@ -88,7 +104,7 @@ module.exports = {
     const code = Res ? "1" : "0";
     ctx.body = {
       msg,
-      code
+      code,
     };
   },
 
@@ -122,7 +138,7 @@ module.exports = {
     const { id } = ctx.request.query;
     await userModel.setDefaultAddress(id);
     ctx.body = {
-      res: 1
+      res: 1,
     };
   },
 
@@ -146,7 +162,7 @@ module.exports = {
       orderDetail: orderDetail[0],
       res: "success",
       msg: "提交订单成功",
-      status: 1
+      status: 1,
     };
   },
 
@@ -160,9 +176,57 @@ module.exports = {
     const { username } = ctx.state.user;
     const { orderId, orderPrice } = ctx.request.body;
     await userModel.payForOrder(username, orderId, orderPrice);
+    const goodDetail = await userModel.getOrderGood(orderId);
+    const orderDetail = await userModel.getOrderDetail(orderId);
+    const { name, price } = goodDetail[0];
+    const { time } = orderDetail[0];
+    const { touser, template_id, access_token } = ctx.request.body;
+    const data = {
+      touser,
+      template_id,
+      data: {
+        thing5: {
+          value: "该信息仅用于测试！",
+        },
+        character_string9: {
+          value: orderId,
+        },
+        thing6: {
+          value: name,
+        },
+        amount7: {
+          value: price,
+        },
+        date10: {
+          value: time,
+        },
+      },
+      page: `/pages/submitOrder/submitOrder?orderId=${orderId}`,
+      miniprogram_state: "trial",
+    };
+    await new Promise((resolve, reject) => {
+      request.post(
+        {
+          url: `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${access_token}`,
+          method: "POST",
+          json: true,
+          body: data,
+        },
+        (err, result, body) => {
+          if (err) {
+            reject(err);
+          } else {
+            console.log(body);
+            
+            resolve(body);
+          }
+        }
+      );
+    });
+
     ctx.body = {
       msg: "支付成功！",
-      orderStatus: 2
+      orderStatus: 2,
     };
   },
 
@@ -170,7 +234,7 @@ module.exports = {
     const { orderId } = ctx.request.body;
     await userModel.delivery(orderId);
     ctx.body = {
-      orderStatus: 3
+      orderStatus: 3,
     };
   },
 
@@ -178,7 +242,7 @@ module.exports = {
     const { orderId } = ctx.request.body;
     await userModel.cancelOrder(orderId);
     ctx.body = {
-      orderStatus: 6
+      orderStatus: 6,
     };
   },
 
@@ -186,7 +250,7 @@ module.exports = {
     const { orderId } = ctx.request.body;
     await userModel.confirmReceiving(orderId);
     ctx.body = {
-      orderStatus: 4
+      orderStatus: 4,
     };
   },
 
@@ -205,7 +269,7 @@ module.exports = {
     ctx.body = {
       addressDetail: addressDetail[0],
       goodDetail: goodDetail[0],
-      orderDetail: orderDetail[0]
+      orderDetail: orderDetail[0],
     };
   },
 
@@ -213,7 +277,7 @@ module.exports = {
     const { orderId, comment, commentType } = ctx.request.body;
     await userModel.orderEvaluate(orderId, comment, commentType);
     ctx.body = {
-      msg: "评价成功"
+      msg: "评价成功",
     };
   },
 
@@ -230,7 +294,7 @@ module.exports = {
     }
 
     ctx.body = {
-      msg: "success"
+      msg: "success",
     };
   },
 
@@ -244,11 +308,11 @@ module.exports = {
     const { username } = ctx.state.user;
     const { id } = ctx.request.body;
     const collectionList = await userModel.cancelCollect(id);
-    ctx.body = { msg: 'success' };
+    ctx.body = { msg: "success" };
   },
 
   async getHistory(ctx, next) {
-    const { username } = ctx.state.user || '';
+    const { username } = ctx.state.user || "";
     const historySearch = await userModel.getHistory(username);
     const hotSearch = await goodModel.getHotSearch();
     ctx.body = {
@@ -258,44 +322,44 @@ module.exports = {
   },
 
   async deleteHistory(ctx, next) {
-    const { username } = ctx.state.user || '';
+    const { username } = ctx.state.user || "";
     await userModel.deleteHistory(username);
     ctx.body = {
-      msg: 'success'
+      msg: "success",
     };
   },
 
   async recharge(ctx, next) {
-    const { username } = ctx.state.user || '';
+    const { username } = ctx.state.user || "";
     const { price, password } = ctx.request.body;
     console.log(price);
     console.log(password);
-    
+
     const userValidate = await userModel.checkUser(username, password);
     console.log(userValidate);
-    
+
     if (userValidate) {
       await userModel.recharge(username, price);
       ctx.body = {
         code: 1,
-        msg: '充值成功！'
+        msg: "充值成功！",
       };
     } else {
       ctx.body = {
         code: -1,
-        msg: '密码错误！'
+        msg: "密码错误！",
       };
     }
   },
 
   async saveHistorySearch(ctx, next) {
-    const { username } = ctx.state.user || '';
+    const { username } = ctx.state.user || "";
     const { searchValue } = ctx.request.body;
     const history = await userModel.findHistory(username, searchValue);
     if (history.length === 0) {
       await userModel.saveHistorySearch(username, searchValue);
     }
-    
+
     const hotHistory = await goodModel.findHotHistory(searchValue);
     if (hotHistory.length === 0) {
       await goodModel.addHotHistory(searchValue);
@@ -303,7 +367,7 @@ module.exports = {
       await goodModel.updateHotHistory(searchValue);
     }
     ctx.body = {
-      msg: 'success',
+      msg: "success",
     };
-  }
+  },
 };

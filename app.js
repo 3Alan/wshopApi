@@ -1,6 +1,7 @@
 const Koa = require('koa');
 const goodRouter = require('./routers/good');
 const userRouter = require('./routers/user');
+const testRouter = require('./routers/test');
 const { appPort } = require('./config');
 const bodyParser = require('koa-bodyparser');
 const error = require('./middleware/error');
@@ -20,6 +21,7 @@ app.use(error);
 app.use(koaJwt({ secret }).unless({
   path: [
     /\/user\/login/,
+    /\/user\/wechatLogin/,
     /\/user\/register/,
     /\/user\/check_user_name/,
     /^((?!\/user).)*$/,
@@ -33,5 +35,7 @@ app.use(bodyParser());
 
 app.use(goodRouter.routes());
 app.use(userRouter.routes());
+app.use(testRouter.routes());
 app.use(goodRouter.allowedMethods());
 app.use(userRouter.allowedMethods());
+app.use(testRouter.allowedMethods());
